@@ -1250,7 +1250,7 @@
                                    onblur="saveTask('${block.id}', this.value)"
                                    onkeypress="if(event.key==='Enter') saveTask('${block.id}', this.value)">
                         `}
-                        <div class="block-actions">
+                        <div class="time-block-actions">
                             <button class="btn btn-small ${block.completed ? 'btn-secondary' : 'btn-success'}" 
                                     onclick="toggleComplete('${block.id}')">
                                 ${block.completed ? '↩️ Chưa xong' : '✅ Hoàn thành'}
@@ -1316,10 +1316,16 @@
         
         function clearAllBlocks() {
             if (confirm('Bạn có chắc chắn muốn xóa tất cả time blocks?')) {
-                timeBlocks = [];
-                saveTimeBlocks();
-                renderTimeBlocks();
-                Utils.showNotification('Đã xóa tất cả time blocks!', 'success');
+                try {
+                    timeBlocks = [];
+                    // Clear persisted storage to avoid any stale data
+                    localStorage.removeItem('time-blocks');
+                    renderTimeBlocks();
+                    Utils.showNotification('Đã xóa tất cả time blocks!', 'success');
+                } catch (error) {
+                    console.error('Error clearing time blocks:', error);
+                    Utils.showNotification('Có lỗi khi xóa time blocks!', 'error');
+                }
             }
         }
         
