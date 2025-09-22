@@ -4,7 +4,7 @@
   "private": true,
   "description": "Static task manager app",
   "scripts": {
-    "start": "serve -s . -l $PORT"
+    "start": "serve . -l $PORT"
   },
   "dependencies": {
     "serve": "^14.2.0"
