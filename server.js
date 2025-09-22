@@ -132,7 +132,20 @@ app.get('*', (req, res, next) => {
 
 (async () => {
   try {
-    await runMigrations();
+    if (!pool) {
+      console.warn('DATABASE_URL not set. API will use localStorage fallback.');
+    } else {
+      console.log('Running migrations...');
+      await runMigrations();
+      console.log('Migrations completed.');
+    }
+
+    if (process.env.MIGRATE_ONLY === '1') {
+      console.log('MIGRATE_ONLY set. Exiting after migrations.');
+      process.exit(0);
+      return;
+    }
+
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
   } catch (e) {
     console.error('Startup error', e);
