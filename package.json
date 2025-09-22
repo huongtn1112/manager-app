@@ -4,10 +4,17 @@
   "private": true,
   "description": "Static task manager app",
   "scripts": {
-    "start": "serve . -l $PORT"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pg": "^8.11.5",
     "serve": "^14.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
 

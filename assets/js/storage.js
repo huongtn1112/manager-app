@@ -6,6 +6,7 @@ class StorageManager {
             calendar: 'calendar-events',
             blocks: 'time-blocks'
         };
+        this.apiBase = '/api';
     }
 
     /**
@@ -18,6 +19,19 @@ class StorageManager {
             const key = this.storageKeys[type];
             if (!key) {
                 throw new Error(`Unknown storage type: ${type}`);
+            }
+
+            // Use backend for todos if available
+            if (type === 'todo') {
+                try {
+                    const res = await fetch(`${this.apiBase}/todos`, { headers: { 'Accept': 'application/json' } });
+                    if (res.ok) {
+                        const data = await res.json();
+                        return Array.isArray(data) ? data : [];
+                    }
+                } catch (_) {
+                    // fallback to local
+                }
             }
             
             const data = localStorage.getItem(key);
@@ -39,6 +53,19 @@ class StorageManager {
             const key = this.storageKeys[type];
             if (!key) {
                 throw new Error(`Unknown storage type: ${type}`);
+            }
+
+            // Push to backend for todos; mirror into local as cache
+            if (type === 'todo') {
+                try {
+                    await fetch(`${this.apiBase}/todos`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(items)
+                    });
+                } catch (_) {
+                    // ignore network error; still write to local
+                }
             }
             
             localStorage.setItem(key, JSON.stringify(items));
@@ -71,6 +98,12 @@ class StorageManager {
             }
             
             localStorage.removeItem(key);
+
+            if (type === 'todo') {
+                try {
+                    await fetch(`${this.apiBase}/todos`, { method: 'DELETE' });
+                } catch (_) {}
+            }
             
             // Also clear related settings if they exist
             if (type === 'blocks') {
