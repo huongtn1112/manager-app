@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Quản lý công việc</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+            margin: -1rem -1rem 2rem -1rem;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 1s ease-out;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+            line-height: 1.4;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid;
+            word-wrap: break-word;
+        }
+        
+        .feature-card:nth-child(1) { border-top-color: #3498db; }
+        .feature-card:nth-child(2) { border-top-color: #e74c3c; }
+        .feature-card:nth-child(3) { border-top-color: #f39c12; }
+        .feature-card:nth-child(4) { border-top-color: #2ecc71; }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .feature-description {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .stats-section {
+            background: #f8f9fa;
+            padding: 2rem 1rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .hero-buttons .btn {
+                width: 200px;
+                max-width: 90%;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .feature-card {
+                padding: 1.25rem;
+            }
+            
+            .feature-icon {
+                font-size: 2rem;
+            }
+            
+            .feature-title {
+                font-size: 1.2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 2rem 0.5rem;
+                margin: -0.5rem -0.5rem 1.5rem -0.5rem;
+            }
+            
+            .hero-title {
+                font-size: 1.6rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .feature-card {
+                padding: 1rem;
+            }
+            
+            .stats-section {
+                padding: 1.5rem 0.5rem;
+                margin: 1.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                🎯 TaskManager
+            </a>
+            <ul class="nav-links">
+                <li><a href="/index.html">🏠 Trang chủ</a></li>
+                <li><a href="/pages/todo.html">📝 Công việc</a></li>
+                <li><a href="/pages/calendar.html">📅 Lịch</a></li>
+                <li><a href="/pages/time-blocks.html">⏰ Time Blocks</a></li>
+                <li><a href="/pages/statistics.html">📊 Thống kê</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero-section">
+            <h1 class="hero-title">🎯 Quản lý công việc thông minh</h1>
+            <p class="hero-subtitle">Tổ chức công việc, theo dõi tiến độ và nâng cao hiệu suất làm việc của bạn</p>
+            <div class="hero-buttons">
+                <a href="/pages/todo.html" class="btn btn-primary">📝 Bắt đầu với Todo</a>
+                <a href="/pages/calendar.html" class="btn btn-success">📅 Xem lịch</a>
+                <a href="/pages/time-blocks.html" class="btn btn-danger">⏰ Time Blocks</a>
+                <a href="/pages/time-blocks.html#pomodoro" class="btn btn-warning">🍅 Pomodoro Timer</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="page-header">
+                <h2 class="page-title">✨ Tính năng nổi bật</h2>
+                <p class="page-subtitle">Khám phá các công cụ mạnh mẽ giúp bạn quản lý công việc hiệu quả</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3 class="feature-title">Quản lý Todo</h3>
+                    <p class="feature-description">
+                        Tạo, chỉnh sửa và theo dõi các công việc của bạn. 
+                        Đánh dấu hoàn thành và xem thống kê tiến độ.
+                    </p>
+                    <a href="/pages/todo.html" class="btn btn-primary">Bắt đầu</a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Lịch làm việc</h3>
+                    <p class="feature-description">
+                        Lên lịch các sự kiện, cuộc họp và deadline. 
+                        Xem lịch theo ngày, tuần hoặc tháng.
+                    </p>
+                    <a href="/pages/calendar.html" class="btn btn-danger">Xem lịch</a>
+                </div>
+                
+                                <div class="feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h3 class="feature-title">Time Blocks & Pomodoro</h3>
+                    <p class="feature-description">
+                        Tổ chức thời gian với Time Blocks và tăng hiệu suất 
+                        với kỹ thuật Pomodoro Timer.
+                    </p>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/pages/time-blocks.html" class="btn btn-danger btn-small">⏰ Time Blocks</a>
+                        <a href="/pages/time-blocks.html#pomodoro" class="btn btn-warning btn-small">🍅 Pomodoro</a>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Thống kê & Báo cáo</h3>
+                    <p class="feature-description">
+                        Theo dõi hiệu suất làm việc với các biểu đồ và 
+                        báo cáo chi tiết về tiến độ công việc.
+                    </p>
+                    <a href="/pages/statistics.html" class="btn btn-success">Xem thống kê</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <h2 class="page-title">📈 Thống kê sử dụng</h2>
+            <p class="page-subtitle">Dữ liệu được lưu trữ trên trình duyệt của bạn</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-todos">0</div>
+                    <div class="stat-label">Tổng công việc</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completed-todos">0</div>
+                    <div class="stat-label">Đã hoàn thành</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-events">0</div>
+                    <div class="stat-label">Sự kiện</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="productivity">0%</div>
+                    <div class="stat-label">Năng suất</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Load thống kê từ localStorage
+        function loadStats() {
+            const todos = Utils.getFromLocalStorage('todos', []);
+            const events = Utils.getFromLocalStorage('calendar-events', []);
+            const timeBlocks = Utils.getFromLocalStorage('time-blocks', []);
+            
+            const totalTodos = todos.length;
+            const completedTodos = todos.filter(todo => todo.completed).length;
+            const totalEvents = events.length;
+            const completedBlocks = timeBlocks.filter(block => block.completed).length;
+            const productivity = totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0;
+            
+            document.getElementById('total-todos').textContent = totalTodos;
+            document.getElementById('completed-todos').textContent = completedTodos;
+            document.getElementById('total-events').textContent = totalEvents + timeBlocks.length;
+            document.getElementById('productivity').textContent = productivity + '%';
+        }
+        
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            
+            // Cập nhật thống kê mỗi 5 giây
+            setInterval(loadStats, 5000);
+        });
+    </script>
+</body>
+</html>

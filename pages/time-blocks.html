@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý thời gian - TaskManager</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .time-blocks-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .time-block-settings {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .settings-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 140px;
+        }
+        
+        .setting-group label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+        
+        .time-input {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .duration-select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            width: 100%;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .stats-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .stat-total { color: #667eea; }
+        .stat-completed { color: #27ae60; }
+        .stat-pending { color: #e74c3c; }
+        .stat-progress { color: #f39c12; }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            gap: 0.5rem;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #f8f9fa;
+            color: #495057;
+        }
+        
+        .tab-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Pomodoro Timer Styles */
+        .pomodoro-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pomodoro-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+            background-size: 300% 300%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .pomodoro-container.flash {
+            animation: flash 0.6s ease-in-out;
+        }
+        
+        @keyframes flash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2); }
+        }
+        
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: #000;
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: top 0.3s;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        .pomodoro-header {
+            margin-bottom: 2rem;
+        }
+        
+        .pomodoro-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .pomodoro-icon {
+            font-size: 2.5rem;
+        }
+        
+        .session-counter {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .session-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            min-width: 2rem;
+            display: inline-block;
+        }
+        
+        /* Timer Display */
+        .timer-display {
+            margin: 2rem 0;
+        }
+        
+        .timer-circle {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+        }
+        
+        .timer-progress {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        
+        .timer-progress-bg {
+            fill: none;
+            stroke: #f1f3f4;
+            stroke-width: 8;
+        }
+        
+        .timer-progress-bar {
+            fill: none;
+            stroke: url(#timerGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .timer-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .timer-time {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.05em;
+        }
+        
+        .timer-mode {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .mode-work .timer-mode {
+            color: #e74c3c;
+        }
+        
+        .mode-break .timer-mode {
+            color: #27ae60;
+        }
+        
+        /* Controls */
+        .pomodoro-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .timer-btn {
+            min-width: 120px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-large {
+            min-width: 140px;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .timer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .timer-btn:active {
+            transform: translateY(0);
+        }
+        
+        .timer-btn .btn-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* Preset Selection */
+        .preset-selection {
+            margin: 2rem 0;
+        }
+        
+        .preset-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .preset-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .preset-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .preset-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .preset-btn:hover:not(.active) {
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preset-icon {
+            font-size: 2rem;
+        }
+        
+        .preset-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .preset-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* Custom Settings */
+        .custom-settings {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .custom-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .custom-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .input-group label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .input-group input {
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-group input.invalid {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
+        .input-desc {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        /* Keyboard Shortcuts */
+        .keyboard-shortcuts {
+            margin-top: 2rem;
+            opacity: 0.7;
+        }
+        
+        .keyboard-shortcuts summary {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .keyboard-shortcuts summary:hover {
+            background: #f8f9fa;
+        }
+        
+        .shortcut-list {
+            list-style: none;
+            padding: 1rem;
+            margin: 0.5rem 0 0 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .shortcut-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0;
+        }
+        
+        kbd {
+            background: #2c3e50;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            min-width: 2rem;
+            text-align: center;
+        }
+        
+        /* Mode-specific styles */
+        .mode-work {
+            --accent-color: #e74c3c;
+        }
+        
+        .mode-break {
+            --accent-color: #27ae60;
+        }
+        
+        .mode-work .timer-progress-bar {
+            stroke: #e74c3c;
+        }
+        
+        .mode-break .timer-progress-bar {
+            stroke: #27ae60;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .tab-navigation {
+                margin: 0.5rem;
+                padding: 0.25rem;
+            }
+            
+            .tab-btn {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+            
+            .tab-icon {
+                font-size: 1rem;
+            }
+            
+            .pomodoro-container {
+                padding: 1rem;
+                margin: 0.5rem;
+            }
+            
+            .pomodoro-title {
+                font-size: 1.5rem;
+            }
+            
+            .pomodoro-icon {
+                font-size: 2rem;
+            }
+            
+            .timer-circle {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .timer-time {
+                font-size: 2.5rem;
+            }
+            
+            .timer-mode {
+                font-size: 1rem;
+            }
+            
+            .pomodoro-controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .timer-btn {
+                width: 100%;
+                max-width: 280px;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+            
+            .preset-options {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .preset-btn {
+                width: 100%;
+                max-width: 280px;
+                padding: 1.2rem;
+            }
+            
+            .custom-inputs {
+                gap: 0.75rem;
+            }
+            
+            .input-group input {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .shortcut-list {
+                grid-template-columns: 1fr;
+                gap: 0.25rem;
+            }
+            
+            /* Time blocks mobile adjustments */
+            .settings-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .setting-group {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .pomodoro-container {
+                padding: 0.75rem;
+            }
+            
+            .timer-circle {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .timer-time {
+                font-size: 2rem;
+            }
+            
+            .timer-btn {
+                padding: 0.875rem;
+                font-size: 0.9rem;
+            }
+            
+            .preset-btn {
+                padding: 1rem;
+            }
+            
+            .preset-icon {
+                font-size: 1.5rem;
+            }
+            
+            .session-counter {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .time-blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .time-block {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-left: 5px solid #667eea;
+        }
+        
+        .time-block:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .time-block.completed {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
+        }
+        
+        .time-block.in-progress {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffeaa7 100%);
+        }
+        
+        .time-block-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .time-block.completed .time-block-header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .time-block.in-progress .time-block-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .time-range {
+            font-size: 1rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .time-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
+        }
+        
+        .time-block-content {
+            padding: 1rem;
+        }
+        
+        .task-input {
+            width: 100%;
+            min-height: 70px;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            line-height: 1.4;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            word-wrap: break-word;
+        }
+        
+        .task-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .task-input.has-content {
+            border-color: #27ae60;
+            background: #f8fff8;
+        }
+        
+        .time-block-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .block-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        
+        .task-progress {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .progress-bar {
+            width: 50px;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+        
+        .current-time-indicator {
+            position: relative;
+        }
+        
+        .current-time-indicator::after {
+            content: '● Hiện tại';
+            position: absolute;
+            right: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+            grid-column: 1 / -1;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .time-blocks-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            
+            .setting-group {
+                min-width: auto;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+                width: 100%;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.4rem;
+            }
+            
+            .time-range {
+                font-size: 0.9rem;
+            }
+            
+            .time-status {
+                font-size: 0.75rem;
+            }
+            
+            .time-block-header {
+                padding: 0.75rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+            
+            .time-block-content {
+                padding: 1rem;
+            }
+            
+            .task-input {
+                min-height: 60px;
+                font-size: 0.9rem;
+            }
+            
+            .time-block-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            
+            .task-progress {
+                justify-content: center;
+                order: 1;
+            }
+            
+            .block-controls {
+                justify-content: center;
+                order: 2;
+            }
+            
+            .current-time-indicator::after {
+                position: static;
+                display: block;
+                margin-top: 0.5rem;
+                transform: none;
+                right: auto;
+                top: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .time-block-settings {
+                padding: 1rem;
+            }
+            
+            .stats-bar {
+                padding: 0.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+            
+            .time-block {
+                margin-bottom: 0.75rem;
+            }
+            
+            .time-block-header {
+                padding: 0.5rem;
+            }
+            
+            .time-range {
+                font-size: 0.8rem;
+            }
+            
+            .time-status {
+                font-size: 0.7rem;
+            }
+            
+            .time-block-content {
+                padding: 0.75rem;
+            }
+            
+            .task-input {
+                min-height: 50px;
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .btn-small {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+            
+            .task-progress {
+                font-size: 0.75rem;
+            }
+            
+            .progress-bar {
+                width: 40px;
+            }
+            
+            .action-buttons .btn {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .time-block {
+            animation: slideInUp 0.3s ease-out;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                🎯 TaskManager
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">🏠 Trang chủ</a></li>
+                <li><a href="../pages/todo.html">📝 Công việc</a></li>
+                <li><a href="../pages/calendar.html">📅 Lịch</a></li>
+                <li><a href="../pages/time-blocks.html">⏰ Time Blocks</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="time-blocks-container">
+            <div class="page-header">
+                <h1 class="page-title">⏰ Quản lý thời gian</h1>
+                <p class="page-subtitle">Time blocking và Pomodoro timer</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="timeblocks">
+                    <span class="tab-icon">📅</span>
+                    Time Blocks
+                </button>
+                <button class="tab-btn" data-tab="pomodoro">
+                    <span class="tab-icon">🍅</span>
+                    Pomodoro Timer
+                </button>
+            </div>
+
+            <!-- Time Blocks Tab -->
+            <div class="tab-content active" id="timeblocks-tab">
+                <!-- Time Block Settings -->
+                <div class="time-block-settings">
+                    <div class="settings-row">
+                        <div class="setting-group">
+                            <label for="start-time">Giờ bắt đầu:</label>
+                            <input type="time" id="start-time" class="time-input" value="09:00">
+                        </div>
+                        <div class="setting-group">
+                            <label for="end-time">Giờ kết thúc:</label>
+                            <input type="time" id="end-time" class="time-input" value="17:00">
+                        </div>
+                        <div class="setting-group">
+                            <label for="duration">Thời gian mỗi block:</label>
+                            <select id="duration" class="duration-select">
+                                <option value="10">10 phút</option>
+                                <option value="15">15 phút</option>
+                                <option value="20">20 phút</option>
+                                <option value="25" selected>25 phút</option>
+                                <option value="30">30 phút</option>
+                                <option value="45">45 phút</option>
+                                <option value="60">60 phút</option>
+                            </select>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="generateTimeBlocks()">
+                                🔄 Tạo blocks
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearAllBlocks()">
+                                🗑️ Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-bar">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number stat-total" id="total-blocks">0</div>
+                            <div class="stat-label">Tổng blocks</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number stat-completed" id="completed-blocks">0</div>
+                            <div class="stat-label">Hoàn thành</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number stat-pending" id="remaining-blocks">0</div>
+                            <div class="stat-label">Còn lại</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number stat-progress" id="progress-percentage">0%</div>
+                            <div class="stat-label">Tiến độ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Blocks Grid -->
+                <div class="time-blocks-grid" id="time-blocks-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">⏰</div>
+                        <h3>Chưa có time blocks</h3>
+                        <p>Thiết lập thời gian và tạo blocks để bắt đầu!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pomodoro Tab -->
+            <div class="tab-content" id="pomodoro-tab">
+                <div id="pomodoro-container">
+                    <!-- Pomodoro timer will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/timerStorage.js"></script>
+    <script src="../assets/js/usePomodoro.js"></script>
+    <script src="../assets/js/pomodoroTimer.js"></script>
+    <script>
+        // Time Blocks functionality (existing code)
+        let timeBlocks = Utils.getFromLocalStorage('time-blocks', []);
+        
+        function saveTimeBlocks() {
+            Utils.saveToLocalStorage('time-blocks', timeBlocks);
+        }
+        
+        function updateStats() {
+            const totalBlocks = timeBlocks.length;
+            const completedBlocks = timeBlocks.filter(block => block.completed).length;
+            const remainingBlocks = totalBlocks - completedBlocks;
+            const progressPercentage = totalBlocks > 0 ? Math.round((completedBlocks / totalBlocks) * 100) : 0;
+            
+            document.getElementById('total-blocks').textContent = totalBlocks;
+            document.getElementById('completed-blocks').textContent = completedBlocks;
+            document.getElementById('remaining-blocks').textContent = remainingBlocks;
+            document.getElementById('progress-percentage').textContent = progressPercentage + '%';
+        }
+        
+        function generateTimeBlocks() {
+            const startTime = document.getElementById('start-time').value;
+            const endTime = document.getElementById('end-time').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            
+            if (!startTime || !endTime) {
+                Utils.showNotification('Vui lòng chọn thời gian bắt đầu và kết thúc!', 'warning');
+                return;
+            }
+            
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+            
+            const startMinutes = startHour * 60 + startMin;
+            const endMinutes = endHour * 60 + endMin;
+            
+            if (endMinutes <= startMinutes) {
+                Utils.showNotification('Thời gian kết thúc phải sau thời gian bắt đầu!', 'error');
+                return;
+            }
+            
+            timeBlocks = [];
+            let currentMinutes = startMinutes;
+            let index = 0;
+            
+            while (currentMinutes < endMinutes) {
+                const nextMinutes = Math.min(currentMinutes + duration, endMinutes);
+                
+                const startTimeStr = formatTime(currentMinutes);
+                const endTimeStr = formatTime(nextMinutes);
+                
+                timeBlocks.push({
+                    id: `${startTimeStr}-${endTimeStr}`,
+                    startTime: startTimeStr,
+                    endTime: endTimeStr,
+                    task: '',
+                    completed: false,
+                    index: index++
+                });
+                
+                currentMinutes = nextMinutes;
+            }
+            
+            saveTimeBlocks();
+            renderTimeBlocks();
+            Utils.showNotification(`Đã tạo ${timeBlocks.length} time blocks!`, 'success');
+        }
+        
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+        
+        function clearAllBlocks() {
+            if (confirm('Bạn có chắc chắn muốn xóa tất cả time blocks?')) {
+                timeBlocks = [];
+                saveTimeBlocks();
+                renderTimeBlocks();
+                Utils.showNotification('Đã xóa tất cả time blocks!', 'success');
+            }
+        }
+        
+        function renderTimeBlocks() {
+            const container = document.getElementById('time-blocks-grid');
+            
+            if (timeBlocks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⏰</div>
+                        <h3>Chưa có time blocks</h3>
+                        <p>Thiết lập thời gian và tạo blocks để bắt đầu!</p>
+                    </div>
+                `;
+                updateStats();
+                return;
+            }
+            
+            const currentTime = new Date();
+            const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+            
+            container.innerHTML = timeBlocks.map(block => {
+                const blockStartMinutes = timeToMinutes(block.startTime);
+                const blockEndMinutes = timeToMinutes(block.endTime);
+                const isCurrentBlock = currentMinutes >= blockStartMinutes && currentMinutes < blockEndMinutes;
+                
+                return `
+                    <div class="time-block ${block.completed ? 'completed' : ''} ${isCurrentBlock ? 'current' : ''}"
+                         data-id="${block.id}">
+                        <div class="time-range">
+                            <span class="start-time">${block.startTime}</span>
+                            <span class="time-separator">-</span>
+                            <span class="end-time">${block.endTime}</span>
+                        </div>
+                        ${block.task ? `
+                            <div class="task-display" onclick="editTask('${block.id}')">${block.task}</div>
+                        ` : `
+                            <input type="text" class="task-input" placeholder="Nhập công việc..." 
+                                   onblur="saveTask('${block.id}', this.value)"
+                                   onkeypress="if(event.key==='Enter') saveTask('${block.id}', this.value)">
+                        `}
+                        <div class="block-actions">
+                            <button class="btn btn-small ${block.completed ? 'btn-secondary' : 'btn-success'}" 
+                                    onclick="toggleComplete('${block.id}')">
+                                ${block.completed ? '↩️ Chưa xong' : '✅ Hoàn thành'}
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="deleteBlock('${block.id}')">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+        
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        
+        function saveTask(blockId, task) {
+            const block = timeBlocks.find(b => b.id === blockId);
+            if (block && task.trim()) {
+                block.task = task.trim();
+                saveTimeBlocks();
+                renderTimeBlocks();
+            }
+        }
+        
+        function editTask(blockId) {
+            const block = timeBlocks.find(b => b.id === blockId);
+            if (block) {
+                const newTask = prompt('Sửa công việc:', block.task);
+                if (newTask !== null && newTask.trim() !== block.task) {
+                    block.task = newTask.trim();
+                    saveTimeBlocks();
+                    renderTimeBlocks();
+                }
+            }
+        }
+        
+        function toggleComplete(blockId) {
+            const block = timeBlocks.find(b => b.id === blockId);
+            if (block) {
+                block.completed = !block.completed;
+                saveTimeBlocks();
+                renderTimeBlocks();
+                Utils.showNotification(
+                    block.completed ? 'Đã đánh dấu hoàn thành!' : 'Đã bỏ đánh dấu hoàn thành!',
+                    'success'
+                );
+            }
+        }
+        
+        function deleteBlock(blockId) {
+            if (confirm('Bạn có chắc chắn muốn xóa block này?')) {
+                timeBlocks = timeBlocks.filter(b => b.id !== blockId);
+                saveTimeBlocks();
+                renderTimeBlocks();
+                Utils.showNotification('Đã xóa time block!', 'success');
+            }
+        }
+        
+        function clearAllBlocks() {
+            if (confirm('Bạn có chắc chắn muốn xóa tất cả time blocks?')) {
+                timeBlocks = [];
+                saveTimeBlocks();
+                renderTimeBlocks();
+                Utils.showNotification('Đã xóa tất cả time blocks!', 'success');
+            }
+        }
+        
+        // Tab functionality
+        let currentTab = 'timeblocks';
+        let pomodoroTimer = null;
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active state from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Activate tab button
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Initialize Pomodoro timer if switching to pomodoro tab
+            if (tabName === 'pomodoro' && !pomodoroTimer) {
+                initPomodoroTimer();
+            }
+        }
+        
+        function initPomodoroTimer() {
+            try {
+                pomodoroTimer = new PomodoroTimer('pomodoro-container');
+            } catch (error) {
+                console.error('Error initializing Pomodoro timer:', error);
+                Utils.showNotification('Có lỗi khi khởi tạo Pomodoro timer!', 'error');
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Render time blocks
+            renderTimeBlocks();
+            
+            // Setup tab event listeners
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.dataset.tab);
+                });
+            });
+            
+            // Auto-update time blocks every minute
+            setInterval(() => {
+                if (currentTab === 'timeblocks') {
+                    renderTimeBlocks();
+                }
+            }, 60000);
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (pomodoroTimer) {
+                pomodoroTimer.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

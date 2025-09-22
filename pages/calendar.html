@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch làm việc - TaskManager</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .calendar-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            /* Better touch target */
+            min-width: 44px;
+            min-height: 44px;
+        }
+        
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+        
+        .current-month {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 180px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .view-btn {
+            padding: 8px 14px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .calendar-day-header {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-day {
+            background: white;
+            min-height: 100px;
+            padding: 6px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+        }
+        
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+        
+        .calendar-day.today {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+        
+        .calendar-day.has-events {
+            background: #fff3cd;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .day-events {
+            font-size: 0.7rem;
+        }
+        
+        .event-item {
+            background: #667eea;
+            color: white;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-bottom: 2px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 0.65rem;
+        }
+        
+        .event-item.priority-high { background: #e74c3c; }
+        .event-item.priority-medium { background: #f39c12; }
+        .event-item.priority-low { background: #3498db; }
+        
+        .event-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .event-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .event-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.3s ease;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .event-list-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .event-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-info {
+            flex: 1;
+            margin-right: 1rem;
+        }
+        
+        .event-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+        
+        .event-details {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+        
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .month-navigation {
+                order: 1;
+            }
+            
+            .current-month {
+                font-size: 1.1rem;
+                min-width: auto;
+            }
+            
+            .view-toggle {
+                order: 2;
+                justify-content: center;
+            }
+            
+            .calendar-day {
+                min-height: 70px;
+                padding: 4px;
+            }
+            
+            .day-number {
+                font-size: 0.8rem;
+            }
+            
+            .day-events {
+                font-size: 0.6rem;
+            }
+            
+            .event-item {
+                font-size: 0.6rem;
+                padding: 1px 3px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .event-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+            
+            .event-info {
+                margin-right: 0;
+            }
+            
+            .event-actions {
+                align-self: flex-end;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 1rem;
+                max-height: 90vh;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calendar-day-header {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+            
+            .calendar-day {
+                min-height: 60px;
+                padding: 3px;
+            }
+            
+            .day-number {
+                font-size: 0.7rem;
+            }
+            
+            .day-events {
+                font-size: 0.55rem;
+            }
+            
+            .event-item {
+                font-size: 0.55rem;
+                padding: 1px 2px;
+            }
+            
+            .nav-btn {
+                width: 32px;
+                height: 32px;
+                min-width: 40px;
+                min-height: 40px;
+                font-size: 1rem;
+            }
+            
+            .current-month {
+                font-size: 1rem;
+            }
+            
+            .view-btn {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+            }
+            
+            .event-list {
+                padding: 1rem;
+            }
+            
+            .event-title {
+                font-size: 0.9rem;
+            }
+            
+            .event-details {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                🎯 TaskManager
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">🏠 Trang chủ</a></li>
+                <li><a href="../pages/todo.html">📝 Công việc</a></li>
+                <li><a href="../pages/calendar.html">📅 Lịch</a></li>
+                <li><a href="../pages/time-blocks.html">⏰ Time Blocks</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="calendar-container">
+            <div class="page-header">
+                <h1 class="page-title">📅 Lịch làm việc</h1>
+                <p class="page-subtitle">Quản lý lịch trình và sự kiện của bạn</p>
+            </div>
+
+            <!-- Calendar Header -->
+            <div class="calendar-header">
+                <div class="month-navigation">
+                    <button class="nav-btn" onclick="changeMonth(-1)">‹</button>
+                    <div class="current-month" id="current-month">Tháng 9, 2025</div>
+                    <button class="nav-btn" onclick="changeMonth(1)">›</button>
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setView('month')">Tháng</button>
+                    <button class="view-btn" onclick="setView('week')">Tuần</button>
+                    <button class="view-btn" onclick="openEventModal()">➕ Thêm sự kiện</button>
+                </div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Calendar will be generated here -->
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="event-list">
+                <h3 style="margin-bottom: 1rem; color: #2c3e50;">📋 Sự kiện sắp tới</h3>
+                <div id="upcoming-events">
+                    <div style="text-align: center; color: #7f8c8d; padding: 2rem;">
+                        Không có sự kiện nào sắp tới
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #2c3e50;">📝 Thêm sự kiện mới</h3>
+                <button class="close-btn" onclick="closeEventModal()">&times;</button>
+            </div>
+            <form id="event-form">
+                <div class="form-row">
+                    <div>
+                        <label for="event-title">Tiêu đề</label>
+                        <input type="text" id="event-title" class="form-control" placeholder="Nhập tiêu đề sự kiện" required>
+                    </div>
+                    <div>
+                        <label for="event-date">Ngày</label>
+                        <input type="date" id="event-date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label for="event-time">Thời gian</label>
+                        <input type="time" id="event-time" class="form-control">
+                    </div>
+                    <div>
+                        <label for="event-priority">Độ ưu tiên</label>
+                        <select id="event-priority" class="form-control">
+                            <option value="low">Thấp</option>
+                            <option value="medium">Trung bình</option>
+                            <option value="high">Cao</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="event-description">Mô tả</label>
+                    <textarea id="event-description" class="form-control" rows="3" placeholder="Mô tả chi tiết sự kiện"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEventModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary">💾 Lưu sự kiện</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        let currentDate = new Date();
+        let events = Utils.getFromLocalStorage('calendar-events', []);
+        let currentView = 'month';
+        
+        const monthNames = [
+            'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+            'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+        ];
+        
+        const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        
+        function saveEvents() {
+            Utils.saveToLocalStorage('calendar-events', events);
+        }
+        
+        function generateCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Update month display
+            document.getElementById('current-month').textContent = 
+                `${monthNames[month]}, ${year}`;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            const calendarGrid = document.getElementById('calendar-grid');
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                
+                const prevMonth = new Date(year, month - 1, 0);
+                const dayNum = prevMonth.getDate() - startingDayOfWeek + i + 1;
+                emptyDay.innerHTML = `<div class="day-number">${dayNum}</div>`;
+                
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // Add days of current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                const currentDay = new Date(year, month, day);
+                const today = new Date();
+                
+                if (currentDay.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Check for events on this day
+                const dayEvents = getEventsForDate(currentDay);
+                if (dayEvents.length > 0) {
+                    dayElement.classList.add('has-events');
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    <div class="day-events">
+                        ${dayEvents.slice(0, 2).map(event => 
+                            `<div class="event-item priority-${event.priority}" title="${event.title}">
+                                ${event.title}
+                            </div>`
+                        ).join('')}
+                        ${dayEvents.length > 2 ? `<div class="event-item">+${dayEvents.length - 2} khác</div>` : ''}
+                    </div>
+                `;
+                
+                dayElement.onclick = () => openEventModal(currentDay);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // Fill remaining cells
+            const totalCells = calendarGrid.children.length;
+            const remainingCells = 42 - (totalCells - 7); // 42 total cells minus 7 headers
+            
+            for (let i = 1; i <= remainingCells; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                emptyDay.innerHTML = `<div class="day-number">${i}</div>`;
+                calendarGrid.appendChild(emptyDay);
+            }
+        }
+        
+        function getEventsForDate(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return events.filter(event => event.date === dateStr);
+        }
+        
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            generateCalendar();
+            updateUpcomingEvents();
+        }
+        
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (view === 'week') {
+                Utils.showNotification('Chế độ xem tuần sẽ được phát triển trong phiên bản tiếp theo', 'info');
+            }
+        }
+        
+        function openEventModal(selectedDate = null) {
+            const modal = document.getElementById('event-modal');
+            const dateInput = document.getElementById('event-date');
+            
+            if (selectedDate) {
+                dateInput.value = selectedDate.toISOString().split('T')[0];
+            } else {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeEventModal() {
+            const modal = document.getElementById('event-modal');
+            modal.classList.remove('active');
+            document.getElementById('event-form').reset();
+        }
+        
+        function addEvent(eventData) {
+            const newEvent = {
+                id: Utils.generateId(),
+                title: eventData.title,
+                date: eventData.date,
+                time: eventData.time,
+                priority: eventData.priority,
+                description: eventData.description,
+                createdAt: new Date().toISOString()
+            };
+            
+            events.push(newEvent);
+            saveEvents();
+            generateCalendar();
+            updateUpcomingEvents();
+            Utils.showNotification('Đã thêm sự kiện mới!', 'success');
+        }
+        
+        function deleteEvent(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa sự kiện này?')) {
+                events = events.filter(event => event.id !== id);
+                saveEvents();
+                generateCalendar();
+                updateUpcomingEvents();
+                Utils.showNotification('Đã xóa sự kiện!', 'success');
+            }
+        }
+        
+        function updateUpcomingEvents() {
+            const upcomingContainer = document.getElementById('upcoming-events');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const upcoming = events
+                .filter(event => new Date(event.date) >= today)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(0, 5);
+            
+            if (upcoming.length === 0) {
+                upcomingContainer.innerHTML = `
+                    <div style="text-align: center; color: #7f8c8d; padding: 2rem;">
+                        Không có sự kiện nào sắp tới
+                    </div>
+                `;
+                return;
+            }
+            
+            upcomingContainer.innerHTML = upcoming.map(event => {
+                const eventDate = new Date(event.date);
+                const isToday = eventDate.toDateString() === new Date().toDateString();
+                
+                return `
+                    <div class="event-list-item">
+                        <div class="event-info">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-details">
+                                📅 ${Utils.formatDate(eventDate)} 
+                                ${isToday ? '(Hôm nay)' : ''}
+                                ${event.time ? `🕒 ${event.time}` : ''}
+                                <span class="priority-badge priority-${event.priority}">
+                                    ${event.priority === 'high' ? '🔴 Cao' : 
+                                      event.priority === 'medium' ? '🟡 Trung bình' : '🟢 Thấp'}
+                                </span>
+                            </div>
+                            ${event.description ? `<div style="margin-top: 0.5rem; font-size: 0.9rem; color: #6c757d;">${event.description}</div>` : ''}
+                        </div>
+                        <div class="event-actions">
+                            <button class="btn btn-danger btn-small" onclick="deleteEvent('${event.id}')">
+                                🗑️ Xóa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Event listeners
+        document.getElementById('event-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('event-title').value.trim(),
+                date: document.getElementById('event-date').value,
+                time: document.getElementById('event-time').value,
+                priority: document.getElementById('event-priority').value,
+                description: document.getElementById('event-description').value.trim()
+            };
+            
+            if (!formData.title || !formData.date) {
+                Utils.showNotification('Vui lòng nhập đầy đủ tiêu đề và ngày!', 'warning');
+                return;
+            }
+            
+            addEvent(formData);
+            closeEventModal();
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('event-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEventModal();
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEventModal();
+            }
+            if (e.key === 'ArrowLeft' && !document.querySelector('.modal.active')) {
+                changeMonth(-1);
+            }
+            if (e.key === 'ArrowRight' && !document.querySelector('.modal.active')) {
+                changeMonth(1);
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            generateCalendar();
+            updateUpcomingEvents();
+        });
+    </script>
+</body>
+</html>
