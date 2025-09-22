@@ -6,6 +6,7 @@ class NavigationManager {
     
     init() {
         this.setActiveNavLink();
+        this.updateAuthControls();
         this.handleMobileMenu();
     }
     
@@ -22,6 +23,57 @@ class NavigationManager {
                 link.classList.add('active');
             }
         });
+    }
+
+    updateAuthControls() {
+        try {
+            const navList = document.querySelector('.nav-links');
+            if (!navList) return;
+
+            // Remove existing auth-related items
+            Array.from(navList.querySelectorAll('li[data-auth-item]')).forEach(li => li.remove());
+            const loginLi = Array.from(navList.children).find(li => li.querySelector('a[href$="login.html"]'));
+            if (loginLi) loginLi.remove();
+
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                // Add account and logout controls
+                const accountLi = document.createElement('li');
+                accountLi.setAttribute('data-auth-item', '');
+                const accountA = document.createElement('a');
+                accountA.href = '#';
+                accountA.textContent = '👤 Tài khoản';
+                accountLi.appendChild(accountA);
+
+                const logoutLi = document.createElement('li');
+                logoutLi.setAttribute('data-auth-item', '');
+                const logoutA = document.createElement('a');
+                logoutA.href = '#';
+                logoutA.textContent = '🚪 Đăng xuất';
+                logoutA.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('auth_token');
+                    Utils.showNotification('Đã đăng xuất!', 'success');
+                    // Rebuild auth controls and refresh active link state
+                    this.updateAuthControls();
+                });
+                logoutLi.appendChild(logoutA);
+
+                navList.appendChild(accountLi);
+                navList.appendChild(logoutLi);
+            } else {
+                // Add login link
+                const li = document.createElement('li');
+                li.setAttribute('data-auth-item', '');
+                const a = document.createElement('a');
+                a.href = '/pages/login.html';
+                a.textContent = '🔐 Đăng nhập';
+                li.appendChild(a);
+                navList.appendChild(li);
+            }
+        } catch (error) {
+            console.error('Error updating auth controls:', error);
+        }
     }
     
     handleMobileMenu() {
