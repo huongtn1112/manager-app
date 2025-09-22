@@ -24,7 +24,10 @@ class StorageManager {
             // Use backend for todos if available
             if (type === 'todo') {
                 try {
-                    const res = await fetch(`${this.apiBase}/todos`, { headers: { 'Accept': 'application/json' } });
+                    const headers = { 'Accept': 'application/json' };
+                    const token = localStorage.getItem('auth_token');
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                    const res = await fetch(`${this.apiBase}/todos`, { headers });
                     if (res.ok) {
                         const data = await res.json();
                         return Array.isArray(data) ? data : [];
@@ -58,9 +61,12 @@ class StorageManager {
             // Push to backend for todos; mirror into local as cache
             if (type === 'todo') {
                 try {
+                    const headers = { 'Content-Type': 'application/json' };
+                    const token = localStorage.getItem('auth_token');
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
                     await fetch(`${this.apiBase}/todos`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers,
                         body: JSON.stringify(items)
                     });
                 } catch (_) {

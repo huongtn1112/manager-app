@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - TaskManager</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .auth-container { max-width: 420px; margin: 2rem auto; }
+        .auth-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1.25rem; }
+        .auth-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .auth-desc { color: #6b7280; margin-bottom: 1rem; }
+        .auth-actions { display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem; }
+        .link { color: #111; text-decoration: underline; font-size: 0.9rem; }
+        .error { color: #dc2626; margin-top: 0.5rem; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">🎯 TaskManager</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">🏠 Trang chủ</a></li>
+                <li><a href="../pages/todo.html">📝 Công việc</a></li>
+                <li><a href="../pages/login.html" class="active">🔐 Đăng nhập</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h1 class="auth-title">🔐 Đăng nhập</h1>
+                <p class="auth-desc">Sử dụng email và mật khẩu để tiếp tục</p>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input id="email" class="form-control" type="email" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input id="password" class="form-control" type="password" placeholder="••••••••" />
+                </div>
+                <div class="auth-actions">
+                    <button id="loginBtn" class="btn btn-primary">Đăng nhập</button>
+                    <a class="link" href="#" id="switchToRegister">Tạo tài khoản</a>
+                </div>
+                <div id="error" class="error" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = (window.AUTH_API_BASE) || '';
+        function setToken(token){ localStorage.setItem('auth_token', token); }
+        function getToken(){ return localStorage.getItem('auth_token'); }
+        async function login(email, password){
+            const form = new URLSearchParams();
+            form.set('username', email);
+            form.set('password', password);
+            const res = await fetch(`${API_BASE}/auth/token`, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body: form });
+            if(!res.ok) throw new Error('Đăng nhập thất bại');
+            const data = await res.json();
+            return data.access_token;
+        }
+        async function register(email, password){
+            const res = await fetch(`${API_BASE}/auth/register`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ email, password }) });
+            if(!res.ok) throw new Error('Đăng ký thất bại');
+            const data = await res.json();
+            return data.access_token;
+        }
+        document.getElementById('switchToRegister').addEventListener('click', async (e)=>{
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const err = document.getElementById('error');
+            err.style.display='none';
+            if(!email || !password){ err.textContent='Vui lòng nhập email và mật khẩu'; err.style.display='block'; return; }
+            try{
+                const token = await register(email, password);
+                setToken(token);
+                window.location.href = '../pages/todo.html';
+            }catch(ex){ err.textContent = ex.message || 'Đăng ký thất bại'; err.style.display='block'; }
+        });
+        document.getElementById('loginBtn').addEventListener('click', async ()=>{
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const err = document.getElementById('error');
+            err.style.display='none';
+            if(!email || !password){ err.textContent='Vui lòng nhập email và mật khẩu'; err.style.display='block'; return; }
+            try{
+                const token = await login(email, password);
+                setToken(token);
+                window.location.href = '../pages/todo.html';
+            }catch(ex){ err.textContent = ex.message || 'Đăng nhập thất bại'; err.style.display='block'; }
+        });
+        // Expose token helper to other pages if needed
+        window.Auth = { getToken };
+    </script>
+</body>
+</html>
