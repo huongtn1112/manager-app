@@ -7,39 +7,37 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <style>
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #fff;
+            color: #111;
             text-align: center;
-            padding: 3rem 1rem;
-            margin: -1rem -1rem 2rem -1rem;
-            border-radius: 0 0 20px 20px;
+            padding: 4rem 1rem 2.5rem 1rem;
+            margin: 0 0 2rem 0;
+            border-radius: 0;
+            border-bottom: 1px solid #e5e7eb;
         }
         
         .hero-title {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            animation: fadeIn 1s ease-out;
-            line-height: 1.2;
-            word-wrap: break-word;
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
         }
         
         .hero-subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            animation: fadeIn 1s ease-out 0.3s both;
-            line-height: 1.4;
-            max-width: 600px;
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 1.75rem;
+            line-height: 1.5;
+            max-width: 680px;
             margin-left: auto;
             margin-right: auto;
         }
         
         .hero-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             justify-content: center;
             flex-wrap: wrap;
-            animation: fadeIn 1s ease-out 0.6s both;
         }
         
         .feature-grid {
@@ -50,51 +48,50 @@
         }
         
         .feature-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            border-top: 4px solid;
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 10px;
+            text-align: left;
+            border: 1px solid #e5e7eb;
+            transition: background-color 0.2s ease;
             word-wrap: break-word;
         }
         
-        .feature-card:nth-child(1) { border-top-color: #3498db; }
-        .feature-card:nth-child(2) { border-top-color: #e74c3c; }
-        .feature-card:nth-child(3) { border-top-color: #f39c12; }
-        .feature-card:nth-child(4) { border-top-color: #2ecc71; }
+        .feature-card:nth-child(1) {}
+        .feature-card:nth-child(2) {}
+        .feature-card:nth-child(3) {}
+        .feature-card:nth-child(4) {}
         
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            background: #fafafa;
         }
         
         .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
         
         .feature-title {
-            font-size: 1.3rem;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            line-height: 1.3;
+            font-size: 1.25rem;
+            color: #111;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
         }
         
         .feature-description {
-            color: #7f8c8d;
+            color: #6b7280;
             line-height: 1.6;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             font-size: 0.95rem;
         }
         
         .stats-section {
-            background: #f8f9fa;
+            background: #fff;
             padding: 2rem 1rem;
-            border-radius: 15px;
+            border-radius: 10px;
             margin: 2rem 0;
             text-align: center;
+            border: 1px solid #e5e7eb;
         }
         
         .stats-grid {
