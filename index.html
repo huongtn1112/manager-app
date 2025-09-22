@@ -201,15 +201,15 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="logo">
+            <a href="index.html" class="logo">
                 🎯 TaskManager
             </a>
             <ul class="nav-links">
-                <li><a href="/index.html">🏠 Trang chủ</a></li>
-                <li><a href="/pages/todo.html">📝 Công việc</a></li>
-                <li><a href="/pages/calendar.html">📅 Lịch</a></li>
-                <li><a href="/pages/time-blocks.html">⏰ Time Blocks</a></li>
-                <li><a href="/pages/statistics.html">📊 Thống kê</a></li>
+                <li><a href="index.html">🏠 Trang chủ</a></li>
+                <li><a href="pages/todo.html">📝 Công việc</a></li>
+                <li><a href="pages/calendar.html">📅 Lịch</a></li>
+                <li><a href="pages/time-blocks.html">⏰ Time Blocks</a></li>
+                <li><a href="pages/statistics.html">📊 Thống kê</a></li>
             </ul>
         </div>
     </nav>
@@ -219,10 +219,10 @@
             <h1 class="hero-title">🎯 Quản lý công việc thông minh</h1>
             <p class="hero-subtitle">Tổ chức công việc, theo dõi tiến độ và nâng cao hiệu suất làm việc của bạn</p>
             <div class="hero-buttons">
-                <a href="/pages/todo.html" class="btn btn-primary">📝 Bắt đầu với Todo</a>
-                <a href="/pages/calendar.html" class="btn btn-success">📅 Xem lịch</a>
-                <a href="/pages/time-blocks.html" class="btn btn-danger">⏰ Time Blocks</a>
-                <a href="/pages/time-blocks.html#pomodoro" class="btn btn-warning">🍅 Pomodoro Timer</a>
+                <a href="pages/todo.html" class="btn btn-primary">📝 Bắt đầu với Todo</a>
+                <a href="pages/calendar.html" class="btn btn-success">📅 Xem lịch</a>
+                <a href="pages/time-blocks.html" class="btn btn-danger">⏰ Time Blocks</a>
+                <a href="pages/time-blocks.html#pomodoro" class="btn btn-warning">🍅 Pomodoro Timer</a>
             </div>
         </section>
 
@@ -240,7 +240,7 @@
                         Tạo, chỉnh sửa và theo dõi các công việc của bạn. 
                         Đánh dấu hoàn thành và xem thống kê tiến độ.
                     </p>
-                    <a href="/pages/todo.html" class="btn btn-primary">Bắt đầu</a>
+                    <a href="pages/todo.html" class="btn btn-primary">Bắt đầu</a>
                 </div>
                 
                 <div class="feature-card">
@@ -250,7 +250,7 @@
                         Lên lịch các sự kiện, cuộc họp và deadline. 
                         Xem lịch theo ngày, tuần hoặc tháng.
                     </p>
-                    <a href="/pages/calendar.html" class="btn btn-danger">Xem lịch</a>
+                    <a href="pages/calendar.html" class="btn btn-danger">Xem lịch</a>
                 </div>
                 
                                 <div class="feature-card">
@@ -261,8 +261,8 @@
                         với kỹ thuật Pomodoro Timer.
                     </p>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <a href="/pages/time-blocks.html" class="btn btn-danger btn-small">⏰ Time Blocks</a>
-                        <a href="/pages/time-blocks.html#pomodoro" class="btn btn-warning btn-small">🍅 Pomodoro</a>
+                        <a href="pages/time-blocks.html" class="btn btn-danger btn-small">⏰ Time Blocks</a>
+                        <a href="pages/time-blocks.html#pomodoro" class="btn btn-warning btn-small">🍅 Pomodoro</a>
                     </div>
                 </div>
                 
@@ -273,7 +273,7 @@
                         Theo dõi hiệu suất làm việc với các biểu đồ và 
                         báo cáo chi tiết về tiến độ công việc.
                     </p>
-                    <a href="/pages/statistics.html" class="btn btn-success">Xem thống kê</a>
+                    <a href="pages/statistics.html" class="btn btn-success">Xem thống kê</a>
                 </div>
             </div>
         </section>
@@ -328,7 +328,11 @@
             loadStats();
             
             // Cập nhật thống kê mỗi 5 giây
-            setInterval(loadStats, 5000);
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadStats();
+                }
+            }, 15000);
         });
     </script>
 </body>

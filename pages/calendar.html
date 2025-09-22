@@ -599,7 +599,8 @@
         function setView(view) {
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const btn = document.querySelector(`.view-btn:nth-child(${view === 'month' ? 1 : 2})`);
+            if (btn) btn.classList.add('active');
             
             if (view === 'week') {
                 Utils.showNotification('Chế độ xem tuần sẽ được phát triển trong phiên bản tiếp theo', 'info');

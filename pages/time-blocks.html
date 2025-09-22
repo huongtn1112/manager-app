@@ -1210,14 +1210,7 @@
             return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
         }
         
-        function clearAllBlocks() {
-            if (confirm('Bạn có chắc chắn muốn xóa tất cả time blocks?')) {
-                timeBlocks = [];
-                saveTimeBlocks();
-                renderTimeBlocks();
-                Utils.showNotification('Đã xóa tất cả time blocks!', 'success');
-            }
-        }
+        // clearAllBlocks defined once above; keep single implementation
         
         function renderTimeBlocks() {
             const container = document.getElementById('time-blocks-grid');

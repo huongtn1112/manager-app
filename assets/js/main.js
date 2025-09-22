@@ -10,16 +10,15 @@ class NavigationManager {
     }
     
     setActiveNavLink() {
-        const currentPath = window.location.pathname;
+        const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
         const navLinks = document.querySelectorAll('.nav-links a');
         
         navLinks.forEach(link => {
             link.classList.remove('active');
             const href = link.getAttribute('href');
-            
-            if (currentPath === href || 
-                (currentPath === '/' && href === '/index.html') ||
-                (currentPath.includes(href) && href !== '/')) {
+            const resolved = new URL(href, window.location.origin + window.location.pathname).pathname
+                .replace(/\/index\.html$/, '/');
+            if (currentPath === resolved) {
                 link.classList.add('active');
             }
         });
